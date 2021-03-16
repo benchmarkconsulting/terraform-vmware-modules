@@ -39,7 +39,7 @@ vm_folder         = ""
 compute_cluster   = ""
 cpu_number        = ""
 ram_size          = ""
-is_windows_image  = false/true
+windows           = false/true
 vlan              = ""
 ipv4_address      = [""]
 ```
