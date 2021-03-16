@@ -1,0 +1,14 @@
+vsphere-user      = ""
+vsphere-password  = ""
+vsphere-server    = ""
+stack             = ""
+vmtemplate        = ""
+instances_count   = 
+vm_name           = ""
+vm_folder         = ""
+compute_cluster   = ""
+cpu_number        = ""
+ram_size          = ""
+windows           = false
+vlan              = ""
+ipv4_address      = [""]
