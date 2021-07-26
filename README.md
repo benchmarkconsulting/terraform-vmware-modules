@@ -2,8 +2,9 @@
 
 A registry of modules to create a VMWare environment 
 The resources/services/activations/deletions that these modules include are:
-- Module for 
+- Modules for 
     - compute
+    - creating folders
 
 ## Ansible for machine configuration
 - Leverages ansible and dynamic inventory to configure machine after provisions
@@ -12,7 +13,7 @@ The resources/services/activations/deletions that these modules include are:
 
 ```hcl
 module "<module>" {
-    source = "git::https://github.com/benchmarkconsulting/vmware-terraform-modules//<module>"
+    source = "git::https://github.com/benchmarkconsulting/terraform-vmware-modules//<module>"
 ```
 ## Deploys Virtual Machines to your vSphere environment
 
