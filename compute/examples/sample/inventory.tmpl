@@ -1,0 +1,40 @@
+[windows]
+%{ for index, ip in windows-address ~}
+${ip}
+%{ endfor ~}
+
+[windows:vars]
+ansible_connection=winrm
+ansible_port=5985
+ansible_winrm_transport=ntlm
+ansible_winrm_server_cert_validation=ignore
+
+[WEB]
+%{ for index, ip in web-linux-address ~}
+${ip}
+%{ endfor ~}
+
+[WEB:vars]
+ansible_connection=ssh
+ansible_become=yes
+host_key_checking=False
+
+[APP]
+%{ for index, ip in app-linux-address ~}
+${ip}
+%{ endfor ~}
+
+[APP:vars]
+ansible_connection=ssh
+ansible_become=yes
+host_key_checking=False
+
+[DB]
+%{ for index, ip in db-linux-address ~}
+${ip}
+%{ endfor ~}
+
+[DB:vars]
+ansible_connection=ssh
+ansible_become=yes
+host_key_checking=False

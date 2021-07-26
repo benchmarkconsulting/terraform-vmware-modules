@@ -1,0 +1,12 @@
+[all:vars]
+ansible_connection=ssh
+ansible_user=admin
+ansible_ssh_pass=
+ansible_become=yes
+ansible_become_password=
+host_key_checking=False
+
+[example-single-linux-server]
+%{ for index, ip in linuxipv4-address ~}
+${ip}
+%{ endfor ~}

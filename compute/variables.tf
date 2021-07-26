@@ -1,3 +1,4 @@
+#Network Section
 variable "network" {
   description = "Define PortGroup and IPs for each VM"
   type        = map(list(string))
@@ -10,12 +11,19 @@ variable "network_type" {
   default     = null
 }
 
+variable "ignored_guest_ips" {
+  description = "Define list of VM ips to ignore on inital boot."
+  type        = list(string)
+  default     = ["10.10.102.2","10.10.102.3","10.10.102.4","10.10.102.5"]
+}
+
 variable "ipv4submask" {
   description = "ipv4 Subnet mask."
   type        = list(any)
   default     = ["24"]
 }
 
+#Data Disk section
 variable "datastore_cluster" {
   description = "Datastore cluster to deploy the VM."
   default     = ""
@@ -79,6 +87,7 @@ variable "storage_policy_id" {
   default     = null
 }
 
+###########################################
 variable "vmname" {
   description = "The name of the virtual machine used to deploy the vms."
   default     = "terraformvm"
@@ -132,16 +141,12 @@ variable "vmfolder" {
   default     = null
 }
 
-variable "vmgateway" {
-  description = "VM gateway to set during provisioning."
-  default     = null
-}
-
 variable "vmdns" {
   type    = list(string)
   default = null
 }
 
+#Global Customization Variables
 variable "tags" {
   description = "The names of any tags to attach to this resource. They must already exist."
   type        = map(any)
@@ -233,12 +238,12 @@ variable "hw_clock_utc" {
 
 variable "vmdomain" {
   description = "default VM domain for linux guest customization."
-  default     = ""
+  default     = "univeris.com"
 }
 
 
 #Windows Customization Variables
-variable "windows" {
+variable "is_windows_image" {
   description = "Boolean flag to notify when the custom image is windows based."
   type        = bool
   default     = false
@@ -287,7 +292,7 @@ variable "auto_logon_count" {
 
 variable "time_zone" {
   description = "The new time zone for the virtual machine. This is a numeric, sysprep-dictated, timezone code."
-  default     = null
+  default     = 035
 }
 
 variable "run_once" {
@@ -296,7 +301,7 @@ variable "run_once" {
   default     = null
 }
 
-variable "productkey" {
+variable "product_key" {
   description = "Product key to be used during windows customization."
   default     = null
 }
@@ -322,12 +327,6 @@ variable "wait_for_guest_net_timeout" {
   description = "The amount of time, in minutes, to wait for an available IP address on this virtual machine's NICs. Older versions of VMware Tools do not populate this property. In those cases, this waiter can be disabled and the wait_for_guest_ip_timeout waiter can be used instead. A value less than 1 disables the waiter."
   type        = number
   default     = 5
-}
-
-variable "ignored_guest_ips" {
-  description = "List of IP addresses and CIDR networks to ignore while waiting for an available IP address using either of the waiters. Any IP addresses in this list will be ignored if they show up so that the waiter will continue to wait for a real IP address."
-  type        = list(string)
-  default     = []
 }
 
 variable "vm_depends_on" {
@@ -400,4 +399,21 @@ variable "force_power_off" {
   description = "If a guest shutdown failed or timed out while updating or destroying (see shutdown_wait_timeout), force the power-off of the virtual machine."
   type        = bool
   default     = null
+}
+variable "vmgateway" {
+type = map
+  description = "Map of VM gateway to set during provisioning."
+  default     = {
+      "pg-VMDATA_PROD-Internal" = "10.10.106.254"
+      "pg-VMDATA_PROD-External" = "10.10.104.254"
+      "pg-VMDATA_PROD-DB" = "10.10.108.254"
+      "pg-VMDATA_NONPROD-Internal" = "10.10.112.254"
+      "pg-VMDATA_NONPROD-External" = "10.10.110.254"
+      "pg-VMDATA_NONPROD-DB" = "10.10.114.254"
+      "pg-VMDATA_DEV-Internal" = "10.10.118.254"
+      "pg-VMDATA_DEV-External" = "10.10.116.254"
+      "pg-VMDATA_DEV-DB" = "10.10.120.254"
+      "pg-VMDATA_SharedServices-External" = "10.10.100.254"
+      "pg-VMDATA_sharedServices-Internal" = "10.10.102.254"
+    }
 }

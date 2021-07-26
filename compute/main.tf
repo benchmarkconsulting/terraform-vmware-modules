@@ -56,7 +56,7 @@ locals {
 
 // Cloning a Linux VM from a given template. Note: This is the default option!!
 resource "vsphere_virtual_machine" "Linux" {
-  count      = var.windows ? 0 : var.instances
+  count      = var.is_windows_image ? 0 : var.instances
   depends_on = [var.vm_depends_on]
   name       = "%{if var.vmnameliteral != ""}${var.vmnameliteral}%{else}${var.vmname}${count.index + 1}${var.vmnamesuffix}%{endif}"
 
@@ -64,7 +64,7 @@ resource "vsphere_virtual_machine" "Linux" {
   folder            = var.vmfolder
   tags              = var.tag_ids != null ? var.tag_ids : data.vsphere_tag.tag[*].id
   custom_attributes = var.custom_attributes
-  annotation        = var.annotation
+  annotation        = "Build via Terraform-${timeadd(timestamp(),"-5h")}"
   extra_config      = var.extra_config
   firmware          = var.firmware
   enable_disk_uuid  = var.enable_disk_uuid
@@ -95,7 +95,6 @@ resource "vsphere_virtual_machine" "Linux" {
   wait_for_guest_net_timeout  = var.wait_for_guest_net_timeout
 
   ignored_guest_ips = var.ignored_guest_ips
-
   dynamic "network_interface" {
     for_each = keys(var.network) #data.vsphere_network.network[*].id #other option
     content {
@@ -150,7 +149,7 @@ resource "vsphere_virtual_machine" "Linux" {
       }
       dns_server_list = var.vmdns
       dns_suffix_list = var.dns_suffix_list
-      ipv4_gateway    = var.vmgateway
+      ipv4_gateway    = var.vmgateway[data.vsphere_network.network[0].name]
     }
   }
 
@@ -165,18 +164,21 @@ resource "vsphere_virtual_machine" "Linux" {
 
   shutdown_wait_timeout = var.shutdown_wait_timeout
   force_power_off       = var.force_power_off
+
+  lifecycle {
+    ignore_changes = [clone.0.template_uuid]
+  }
 }
 
 resource "vsphere_virtual_machine" "Windows" {
-  count      = var.windows ? var.instances : 0
+  count      = var.is_windows_image ? var.instances : 0
   depends_on = [var.vm_depends_on]
   name       = "%{if var.vmnameliteral != ""}${var.vmnameliteral}%{else}${var.vmname}${count.index + 1}${var.vmnamesuffix}%{endif}"
-
+  annotation        = "Build via Terraform-${timeadd(timestamp(),"-5h")}"
   resource_pool_id  = data.vsphere_compute_cluster.cluster.resource_pool_id
   folder            = var.vmfolder
   tags              = var.tag_ids != null ? var.tag_ids : data.vsphere_tag.tag[*].id
   custom_attributes = var.custom_attributes
-  annotation        = var.annotation
   extra_config      = var.extra_config
   firmware          = var.firmware
   enable_disk_uuid  = var.enable_disk_uuid
@@ -205,7 +207,7 @@ resource "vsphere_virtual_machine" "Windows" {
   wait_for_guest_ip_timeout   = var.wait_for_guest_ip_timeout
   wait_for_guest_net_timeout  = var.wait_for_guest_net_timeout
 
-  ignored_guest_ips = var.ignored_guest_ips
+  ignored_guest_ips = ["10.10.102.2","10.10.102.3","10.10.102.4","10.10.102.5"]
 
   dynamic "network_interface" {
     for_each = keys(var.network)
@@ -255,12 +257,12 @@ resource "vsphere_virtual_machine" "Windows" {
         join_domain           = var.windomain
         domain_admin_user     = var.domain_admin_user
         domain_admin_password = var.domain_admin_password
-        organization_name     = var.orgname
+        organization_name     = "Univeris"
         run_once_command_list = var.run_once
         auto_logon            = var.auto_logon
         auto_logon_count      = var.auto_logon_count
-        time_zone             = var.time_zone
-        product_key           = var.productkey
+        time_zone             = 035
+        product_key           = var.product_key
         full_name             = var.full_name
       }
 
@@ -273,19 +275,22 @@ resource "vsphere_virtual_machine" "Windows" {
       }
       dns_server_list = var.vmdns
       dns_suffix_list = var.dns_suffix_list
-      ipv4_gateway    = var.vmgateway
+      ipv4_gateway    = var.vmgateway[data.vsphere_network.network[0].name]
+      
     }
+    
   }
-
   // Advanced options
-  hv_mode                          = var.hv_mode
-  ept_rvi_mode                     = var.ept_rvi_mode
-  nested_hv_enabled                = var.nested_hv_enabled
-  enable_logging                   = var.enable_logging
-  cpu_performance_counters_enabled = var.cpu_performance_counters_enabled
-  swap_placement_policy            = var.swap_placement_policy
-  latency_sensitivity              = var.latency_sensitivity
-
-  shutdown_wait_timeout = var.shutdown_wait_timeout
-  force_power_off       = var.force_power_off
+  hv_mode                           = var.hv_mode
+  ept_rvi_mode                       = var.ept_rvi_mode
+  nested_hv_enabled                 = var.nested_hv_enabled
+  enable_logging                    = var.enable_logging
+  cpu_performance_counters_enabled  = var.cpu_performance_counters_enabled
+  swap_placement_policy             = var.swap_placement_policy
+  latency_sensitivity               = var.latency_sensitivity
+  shutdown_wait_timeout             = var.shutdown_wait_timeout
+  force_power_off                   = var.force_power_off
+  lifecycle {
+    ignore_changes = [clone.0.template_uuid]
+  }
 }
